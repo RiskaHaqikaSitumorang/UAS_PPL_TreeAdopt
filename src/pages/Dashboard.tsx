@@ -1,15 +1,18 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Trees, Download, Calendar, MapPin, Award, TrendingUp, Leaf } from 'lucide-react';
+import { Trees, Download, Calendar, MapPin, Award, TrendingUp, Leaf, Eye } from 'lucide-react';
 import Navbar from '@/components/Navbar';
+import Certificate from '@/components/Certificate';
 import { useAuth } from '@/contexts/AuthContext';
 
 const Dashboard = () => {
   const { user } = useAuth();
   const [certificates, setCertificates] = useState([]);
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+  const [selectedCertificate, setSelectedCertificate] = useState<any>(null);
+  const [showCertificateModal, setShowCertificateModal] = useState(false);
 
   useEffect(() => {
     const storedCertificates = JSON.parse(localStorage.getItem('certificates') || '[]');
@@ -17,21 +20,30 @@ const Dashboard = () => {
   }, []);
 
   const downloadCertificate = (certificate: any) => {
-    // In a real app, this would generate and download a PDF certificate
-    const blob = new Blob([`
-      SERTIFIKAT ADOPSI POHON
-      
-      ID Sertifikat: ${certificate.certificateId}
-      Nama Pengadopsi: ${certificate.adopterName}
-      Nama Pohon: ${certificate.treeName}
-      Jenis Pohon: ${certificate.treeType}
-      Lokasi: ${certificate.location}
-      Tanggal Adopsi: ${certificate.adoptionDate}
-      Jumlah Donasi: Rp${certificate.amount.toLocaleString('id-ID')}
-      
-      Terima kasih telah berkontribusi untuk bumi yang lebih hijau!
-    `], { type: 'text/plain' });
+    const certificateText = `
+SERTIFIKAT ADOPSI POHON
+TreeAdopt Indonesia
+
+ID Sertifikat: ${certificate.certificateId}
+Nama Pengadopsi: ${certificate.adopterName}
+Nama Pohon: ${certificate.treeName}
+Jenis Pohon: ${certificate.treeType}
+Lokasi: ${certificate.location}
+Tanggal Adopsi: ${certificate.adoptionDate}
+Jumlah Donasi: Rp${certificate.amount.toLocaleString('id-ID')}
+
+Dampak Lingkungan:
+Pohon ini akan menyerap sekitar 48 kg CO₂ per tahun dan memberikan oksigen untuk 2 orang.
+
+Jakarta, ${new Date().toLocaleDateString('id-ID')}
+Direktur TreeAdopt Indonesia
+
+Dr. Budi Santoso
+
+Terima kasih telah berkontribusi untuk bumi yang lebih hijau!
+    `;
     
+    const blob = new Blob([certificateText], { type: 'text/plain' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -40,6 +52,11 @@ const Dashboard = () => {
     a.click();
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
+  };
+
+  const viewCertificate = (certificate: any) => {
+    setSelectedCertificate(certificate);
+    setShowCertificateModal(true);
   };
 
   const monthlyUpdates = [
@@ -203,15 +220,26 @@ const Dashboard = () => {
                               <div className="text-sm text-gray-300">
                                 Adopsi: {cert.adoptionDate}
                               </div>
-                              <Button 
-                                size="sm" 
-                                variant="outline"
-                                className="border-green-400 text-green-400 hover:bg-green-400 hover:text-white"
-                                onClick={() => downloadCertificate(cert)}
-                              >
-                                <Download className="w-4 h-4 mr-1" />
-                                Download
-                              </Button>
+                              <div className="flex gap-2">
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  className="border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white"
+                                  onClick={() => viewCertificate(cert)}
+                                >
+                                  <Eye className="w-4 h-4 mr-1" />
+                                  Lihat
+                                </Button>
+                                <Button 
+                                  size="sm" 
+                                  variant="outline"
+                                  className="border-green-400 text-green-400 hover:bg-green-400 hover:text-white"
+                                  onClick={() => downloadCertificate(cert)}
+                                >
+                                  <Download className="w-4 h-4 mr-1" />
+                                  Download
+                                </Button>
+                              </div>
                             </div>
                           </CardContent>
                         </Card>
@@ -262,6 +290,23 @@ const Dashboard = () => {
             </Card>
           </div>
         </div>
+
+        {/* Certificate Modal */}
+        {showCertificateModal && selectedCertificate && (
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+            <div className="max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="relative">
+                <Button
+                  onClick={() => setShowCertificateModal(false)}
+                  className="absolute -top-12 right-0 bg-white/20 hover:bg-white/30 text-white"
+                >
+                  Tutup
+                </Button>
+                <Certificate certificate={selectedCertificate} />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

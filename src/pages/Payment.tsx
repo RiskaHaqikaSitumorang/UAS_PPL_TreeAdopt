@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Upload, CreditCard, Wallet, CheckCircle, AlertCircle } from 'lucide-react';
 import Navbar from '@/components/Navbar';
+import Certificate from '@/components/Certificate';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
@@ -17,6 +18,8 @@ const Payment = () => {
   const [paymentMethod, setPaymentMethod] = useState('bank_transfer');
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showCertificate, setShowCertificate] = useState(false);
+  const [generatedCertificate, setGeneratedCertificate] = useState<any>(null);
 
   useEffect(() => {
     const storedData = localStorage.getItem('adoptionData');
@@ -37,6 +40,44 @@ const Payment = () => {
       setUploadedFile(file);
       toast.success('Bukti pembayaran berhasil diupload');
     }
+  };
+
+  const downloadCertificate = () => {
+    if (!generatedCertificate) return;
+    
+    // Create a simple text version for download
+    const certificateText = `
+SERTIFIKAT ADOPSI POHON
+TreeAdopt Indonesia
+
+ID Sertifikat: ${generatedCertificate.certificateId}
+Nama Pengadopsi: ${generatedCertificate.adopterName}
+Nama Pohon: ${generatedCertificate.treeName}
+Jenis Pohon: ${generatedCertificate.treeType}
+Lokasi: ${generatedCertificate.location}
+Tanggal Adopsi: ${generatedCertificate.adoptionDate}
+Jumlah Donasi: Rp${generatedCertificate.amount.toLocaleString('id-ID')}
+
+Dampak Lingkungan:
+Pohon ini akan menyerap sekitar 48 kg CO₂ per tahun dan memberikan oksigen untuk 2 orang.
+
+Jakarta, ${new Date().toLocaleDateString('id-ID')}
+Direktur TreeAdopt Indonesia
+
+Dr. Budi Santoso
+
+Terima kasih telah berkontribusi untuk bumi yang lebih hijau!
+    `;
+    
+    const blob = new Blob([certificateText], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Sertifikat-${generatedCertificate.certificateId}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
   };
 
   const handlePayment = async () => {
@@ -61,16 +102,20 @@ const Payment = () => {
       amount: adoptionData.totalPrice
     };
     
+    setGeneratedCertificate(certificateData);
+    
     // Store certificate data
     const existingCertificates = JSON.parse(localStorage.getItem('certificates') || '[]');
     existingCertificates.push(certificateData);
     localStorage.setItem('certificates', JSON.stringify(existingCertificates));
     
-    // Clean up adoption data
-    localStorage.removeItem('adoptionData');
-    
     setIsProcessing(false);
+    setShowCertificate(true);
     toast.success('Pembayaran berhasil! Sertifikat Anda telah diterbitkan.');
+  };
+
+  const goToDashboard = () => {
+    localStorage.removeItem('adoptionData');
     navigate('/dashboard');
   };
 
@@ -79,6 +124,46 @@ const Payment = () => {
       <div className="min-h-screen forest-bg">
         <div className="min-h-screen bg-gradient-to-b from-black/40 via-black/20 to-black/40 flex items-center justify-center">
           <div className="text-white text-xl">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (showCertificate && generatedCertificate) {
+    return (
+      <div className="min-h-screen forest-bg">
+        <div className="min-h-screen bg-gradient-to-b from-black/40 via-black/20 to-black/40">
+          <Navbar />
+          
+          <div className="pt-20 pb-12 px-4">
+            <div className="max-w-4xl mx-auto">
+              <div className="text-center mb-8">
+                <h1 className="text-3xl font-bold text-white mb-4">🎉 Selamat! Adopsi Berhasil</h1>
+                <p className="text-gray-200">
+                  Sertifikat adopsi pohon Anda telah berhasil diterbitkan
+                </p>
+              </div>
+
+              <div className="mb-8">
+                <Certificate certificate={generatedCertificate} />
+              </div>
+
+              <div className="flex gap-4 justify-center">
+                <Button 
+                  onClick={downloadCertificate}
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                >
+                  Download Sertifikat
+                </Button>
+                <Button 
+                  onClick={goToDashboard}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  Lihat Dashboard
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
