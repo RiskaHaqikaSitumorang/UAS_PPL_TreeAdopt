@@ -1,13 +1,16 @@
-
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, MapPin, Leaf } from 'lucide-react';
+import { CheckCircle, MapPin, Leaf, LogIn } from 'lucide-react';
 import Navbar from '@/components/Navbar';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 const AdopsiPohon = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [trees] = useState([
     {
       id: 1,
@@ -65,6 +68,15 @@ const AdopsiPohon = () => {
     }
   ]);
 
+  const handleAdoptClick = (treeId: number) => {
+    if (!user) {
+      toast.error('Silakan masuk terlebih dahulu untuk mengadopsi pohon');
+      navigate('/login');
+      return;
+    }
+    navigate(`/detail-pohon/${treeId}`);
+  };
+
   return (
     <div className="min-h-screen forest-bg">
       <div className="min-h-screen bg-gradient-to-b from-black/40 via-black/20 to-black/40">
@@ -79,6 +91,16 @@ const AdopsiPohon = () => {
               <p className="text-xl text-gray-200 max-w-3xl mx-auto">
                 Pilih pohon yang ingin Anda adopsi dan berkontribusi untuk masa depan bumi yang lebih hijau
               </p>
+              {!user && (
+                <div className="mt-6">
+                  <Card className="glass-effect border-yellow-400/50 p-4 max-w-md mx-auto">
+                    <div className="flex items-center justify-center text-yellow-400">
+                      <LogIn className="w-5 h-5 mr-2" />
+                      <span className="text-sm">Silakan masuk untuk mengadopsi pohon</span>
+                    </div>
+                  </Card>
+                </div>
+              )}
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -116,12 +138,13 @@ const AdopsiPohon = () => {
                       Rp{tree.price.toLocaleString('id-ID')}
                     </div>
 
-                    <Link to={`/detail-pohon/${tree.id}`}>
-                      <Button className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold">
-                        <Leaf className="w-4 h-4 mr-2" />
-                        Adopsi Sekarang
-                      </Button>
-                    </Link>
+                    <Button 
+                      className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold"
+                      onClick={() => handleAdoptClick(tree.id)}
+                    >
+                      <Leaf className="w-4 h-4 mr-2" />
+                      Adopsi Sekarang
+                    </Button>
                   </CardContent>
                 </Card>
               ))}

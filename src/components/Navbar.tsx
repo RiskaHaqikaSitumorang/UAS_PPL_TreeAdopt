@@ -40,9 +40,9 @@ const Navbar = () => {
                   <Link to="/adopsi-pohon" className="text-white hover:text-green-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">
                     Adopsi Pohon
                   </Link>
-                  <a href="#" className="text-white hover:text-green-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                  <Link to="/edukasi" className="text-white hover:text-green-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">
                     Edukasi
-                  </a>
+                  </Link>
                 </>
               )}
               {user && (
@@ -115,9 +115,9 @@ const Navbar = () => {
                   <Link to="/adopsi-pohon" className="text-white hover:text-green-400 block px-3 py-2 rounded-md text-base font-medium">
                     Adopsi Pohon
                   </Link>
-                  <a href="#" className="text-white hover:text-green-400 block px-3 py-2 rounded-md text-base font-medium">
+                  <Link to="/edukasi" className="text-white hover:text-green-400 block px-3 py-2 rounded-md text-base font-medium">
                     Edukasi
-                  </a>
+                  </Link>
                 </>
               )}
               {user && (
