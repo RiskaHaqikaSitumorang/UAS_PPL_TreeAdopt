@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Edit, Trash2, Tree, Users, Award, TrendingUp } from 'lucide-react';
+import { Plus, Edit, Trash2, Trees, Users, Award, TrendingUp } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -112,7 +111,7 @@ const Admin = () => {
             {/* Admin Stats */}
             <div className="grid md:grid-cols-4 gap-6 mb-8">
               <Card className="glass-effect border-white/20 text-center p-6">
-                <Tree className="w-8 h-8 text-green-400 mx-auto mb-3" />
+                <Trees className="w-8 h-8 text-green-400 mx-auto mb-3" />
                 <div className="text-2xl font-bold text-white">{trees.length}</div>
                 <div className="text-gray-300 text-sm">Total Pohon</div>
               </Card>

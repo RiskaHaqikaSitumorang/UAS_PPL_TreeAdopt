@@ -1,8 +1,7 @@
-
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Tree, Leaf, Users, Award } from 'lucide-react';
+import { Trees, Leaf, Users, Award } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 
 const Index = () => {
@@ -16,7 +15,7 @@ const Index = () => {
           <div className="max-w-4xl mx-auto text-center text-white">
             <div className="mb-8">
               <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-600 mb-6">
-                <Tree className="w-10 h-10" />
+                <Trees className="w-10 h-10" />
               </div>
             </div>
             <h1 className="text-5xl md:text-6xl font-bold mb-6">
@@ -103,7 +102,7 @@ const Index = () => {
                   </p>
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
-                      <Tree className="w-5 h-5 text-green-400" />
+                      <Trees className="w-5 h-5 text-green-400" />
                       <span className="text-gray-200">Adopsi pohon dengan mudah</span>
                     </div>
                     <div className="flex items-center gap-3">
@@ -141,7 +140,7 @@ const Index = () => {
 
             <div className="grid md:grid-cols-4 gap-6">
               <Card className="glass-effect border-white/20 text-center p-6">
-                <Tree className="w-12 h-12 text-green-400 mx-auto mb-4" />
+                <Trees className="w-12 h-12 text-green-400 mx-auto mb-4" />
                 <h3 className="font-semibold text-white mb-2">Pilihan Pohon</h3>
                 <p className="text-gray-200 text-sm">
                   Berbagai jenis pohon tersedia untuk diadopsi sesuai preferensi Anda
@@ -250,7 +249,7 @@ const Index = () => {
           <div className="max-w-6xl mx-auto">
             <div className="text-center">
               <div className="flex items-center justify-center mb-4">
-                <Tree className="w-8 h-8 text-green-400 mr-2" />
+                <Trees className="w-8 h-8 text-green-400 mr-2" />
                 <span className="text-2xl font-bold">TreeAdopt</span>
               </div>
               <p className="text-gray-400 mb-6">

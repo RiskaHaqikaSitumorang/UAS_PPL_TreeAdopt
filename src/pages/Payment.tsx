@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Upload, CreditCard, Bank, Wallet, CheckCircle, AlertCircle } from 'lucide-react';
+import { Upload, CreditCard, Wallet, CheckCircle, AlertCircle } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -88,7 +88,7 @@ const Payment = () => {
     {
       id: 'bank_transfer',
       name: 'Transfer Bank',
-      icon: Bank,
+      icon: CreditCard,
       details: 'Bank BCA: 1234567890 a.n TreeAdopt Indonesia'
     },
     {

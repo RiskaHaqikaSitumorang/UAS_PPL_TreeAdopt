@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, CheckCircle, Leaf, Tree, Calendar, User, Mail, Phone } from 'lucide-react';
+import { MapPin, CheckCircle, Leaf, Trees, Calendar, User, Mail, Phone } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';

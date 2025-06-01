@@ -1,10 +1,9 @@
-
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { Tree, Eye, EyeOff } from 'lucide-react';
+import { Trees, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
@@ -34,7 +33,7 @@ const Login = () => {
           <CardContent className="p-8">
             <div className="text-center mb-8">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-600 mb-4">
-                <Tree className="w-8 h-8 text-white" />
+                <Trees className="w-8 h-8 text-white" />
               </div>
               <h1 className="text-2xl font-bold text-white mb-2">WELCOME</h1>
               <p className="text-gray-300 text-sm">
