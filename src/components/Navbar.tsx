@@ -35,22 +35,26 @@ const Navbar = () => {
               <Link to="/" className="text-white hover:text-green-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">
                 Beranda
               </Link>
-              <Link to="/adopsi-pohon" className="text-white hover:text-green-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                Adopsi Pohon
-              </Link>
+              {user?.role !== 'admin' && (
+                <>
+                  <Link to="/adopsi-pohon" className="text-white hover:text-green-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                    Adopsi Pohon
+                  </Link>
+                  <a href="#" className="text-white hover:text-green-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                    Edukasi
+                  </a>
+                </>
+              )}
               {user && (
                 <Link to="/dashboard" className="text-white hover:text-green-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                  Dashboard Saya
+                  {user.role === 'admin' ? 'Dashboard Admin' : 'Dashboard Saya'}
                 </Link>
               )}
               {user?.role === 'admin' && (
                 <Link to="/admin" className="text-white hover:text-green-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                  Admin
+                  Kelola Pohon
                 </Link>
               )}
-              <a href="#" className="text-white hover:text-green-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                Edukasi
-              </a>
             </div>
           </div>
 
@@ -106,22 +110,26 @@ const Navbar = () => {
               <Link to="/" className="text-white hover:text-green-400 block px-3 py-2 rounded-md text-base font-medium">
                 Beranda
               </Link>
-              <Link to="/adopsi-pohon" className="text-white hover:text-green-400 block px-3 py-2 rounded-md text-base font-medium">
-                Adopsi Pohon
-              </Link>
+              {user?.role !== 'admin' && (
+                <>
+                  <Link to="/adopsi-pohon" className="text-white hover:text-green-400 block px-3 py-2 rounded-md text-base font-medium">
+                    Adopsi Pohon
+                  </Link>
+                  <a href="#" className="text-white hover:text-green-400 block px-3 py-2 rounded-md text-base font-medium">
+                    Edukasi
+                  </a>
+                </>
+              )}
               {user && (
                 <Link to="/dashboard" className="text-white hover:text-green-400 block px-3 py-2 rounded-md text-base font-medium">
-                  Dashboard Saya
+                  {user.role === 'admin' ? 'Dashboard Admin' : 'Dashboard Saya'}
                 </Link>
               )}
               {user?.role === 'admin' && (
                 <Link to="/admin" className="text-white hover:text-green-400 block px-3 py-2 rounded-md text-base font-medium">
-                  Admin
+                  Kelola Pohon
                 </Link>
               )}
-              <a href="#" className="text-white hover:text-green-400 block px-3 py-2 rounded-md text-base font-medium">
-                Edukasi
-              </a>
               {!user && (
                 <div className="space-y-2 pt-4">
                   <Link to="/login">

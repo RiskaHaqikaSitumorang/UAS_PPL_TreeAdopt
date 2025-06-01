@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -5,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Edit, Trash2, Trees, Users, Award, TrendingUp } from 'lucide-react';
+import { Plus, Edit, Trash2, Trees, Users, Award, Save, X } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -13,24 +14,37 @@ import { toast } from 'sonner';
 const Admin = () => {
   const { user } = useAuth();
   const [showAddForm, setShowAddForm] = useState(false);
+  const [editingTree, setEditingTree] = useState<number | null>(null);
   const [trees, setTrees] = useState([
     {
       id: 1,
-      name: 'Pohon Jati',
+      name: 'Pohon Jati Berkah',
       category: 'Pencegahan Erosi',
       price: 250000,
       location: 'Jakarta Selatan',
       status: 'Tersedia',
-      adopted: 45
+      adopted: 45,
+      image: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=500&q=80',
+      description: 'Pohon jati yang berumur 3 tahun dengan tinggi sekitar 2 meter. Sangat baik untuk mencegah erosi tanah.',
+      benefits: 'Mencegah erosi tanah, Menyerap karbon, Menghasilkan oksigen, Habitat satwa',
+      co2Absorption: 48,
+      oxygenProduction: 12,
+      waterAbsorption: 15
     },
     {
       id: 2,
-      name: 'Pohon Mangrove',
+      name: 'Pohon Mangrove Lestari',
       category: 'Ekosistem Vital',
       price: 175000,
       location: 'Pantai Utara Jakarta',
       status: 'Tersedia',
-      adopted: 32
+      adopted: 32,
+      image: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=500&q=80',
+      description: 'Pohon mangrove muda yang berperan penting dalam ekosistem pesisir.',
+      benefits: 'Melindungi pantai dari abrasi, Habitat ikan dan udang, Menyerap karbon tinggi, Filter air laut',
+      co2Absorption: 35,
+      oxygenProduction: 8,
+      waterAbsorption: 25
     }
   ]);
   
@@ -40,7 +54,24 @@ const Admin = () => {
     price: '',
     location: '',
     description: '',
-    benefits: ''
+    benefits: '',
+    image: '',
+    co2Absorption: '',
+    oxygenProduction: '',
+    waterAbsorption: ''
+  });
+
+  const [editForm, setEditForm] = useState({
+    name: '',
+    category: '',
+    price: '',
+    location: '',
+    description: '',
+    benefits: '',
+    image: '',
+    co2Absorption: '',
+    oxygenProduction: '',
+    waterAbsorption: ''
   });
 
   if (user?.role !== 'admin') {
@@ -59,7 +90,7 @@ const Admin = () => {
   }
 
   const handleAddTree = () => {
-    if (!newTree.name || !newTree.category || !newTree.price || !newTree.location) {
+    if (!newTree.name || !newTree.category || !newTree.price || !newTree.location || !newTree.image) {
       toast.error('Mohon lengkapi semua field yang wajib diisi');
       return;
     }
@@ -71,7 +102,13 @@ const Admin = () => {
       price: parseInt(newTree.price),
       location: newTree.location,
       status: 'Tersedia',
-      adopted: 0
+      adopted: 0,
+      image: newTree.image,
+      description: newTree.description,
+      benefits: newTree.benefits,
+      co2Absorption: parseInt(newTree.co2Absorption) || 48,
+      oxygenProduction: parseInt(newTree.oxygenProduction) || 12,
+      waterAbsorption: parseInt(newTree.waterAbsorption) || 15
     };
 
     setTrees([...trees, tree]);
@@ -81,10 +118,68 @@ const Admin = () => {
       price: '',
       location: '',
       description: '',
-      benefits: ''
+      benefits: '',
+      image: '',
+      co2Absorption: '',
+      oxygenProduction: '',
+      waterAbsorption: ''
     });
     setShowAddForm(false);
     toast.success('Pohon berhasil ditambahkan');
+  };
+
+  const startEdit = (tree: any) => {
+    setEditingTree(tree.id);
+    setEditForm({
+      name: tree.name,
+      category: tree.category,
+      price: tree.price.toString(),
+      location: tree.location,
+      description: tree.description,
+      benefits: tree.benefits,
+      image: tree.image,
+      co2Absorption: tree.co2Absorption.toString(),
+      oxygenProduction: tree.oxygenProduction.toString(),
+      waterAbsorption: tree.waterAbsorption.toString()
+    });
+  };
+
+  const saveEdit = () => {
+    setTrees(trees.map(tree => 
+      tree.id === editingTree 
+        ? {
+            ...tree,
+            name: editForm.name,
+            category: editForm.category,
+            price: parseInt(editForm.price),
+            location: editForm.location,
+            description: editForm.description,
+            benefits: editForm.benefits,
+            image: editForm.image,
+            co2Absorption: parseInt(editForm.co2Absorption),
+            oxygenProduction: parseInt(editForm.oxygenProduction),
+            waterAbsorption: parseInt(editForm.waterAbsorption)
+          }
+        : tree
+    ));
+    setEditingTree(null);
+    toast.success('Pohon berhasil diperbarui');
+  };
+
+  const cancelEdit = () => {
+    setEditingTree(null);
+    setEditForm({
+      name: '',
+      category: '',
+      price: '',
+      location: '',
+      description: '',
+      benefits: '',
+      image: '',
+      co2Absorption: '',
+      oxygenProduction: '',
+      waterAbsorption: ''
+    });
   };
 
   const deleteTree = (id: number) => {
@@ -101,15 +196,15 @@ const Admin = () => {
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold text-white mb-4">
-                Admin Dashboard
+                Kelola Pohon
               </h1>
               <p className="text-gray-200">
-                Kelola pohon dan pantau adopsi secara keseluruhan
+                Tambah, edit, dan kelola pohon yang tersedia untuk adopsi
               </p>
             </div>
 
             {/* Admin Stats */}
-            <div className="grid md:grid-cols-4 gap-6 mb-8">
+            <div className="grid md:grid-cols-3 gap-6 mb-8">
               <Card className="glass-effect border-white/20 text-center p-6">
                 <Trees className="w-8 h-8 text-green-400 mx-auto mb-3" />
                 <div className="text-2xl font-bold text-white">{trees.length}</div>
@@ -127,99 +222,173 @@ const Admin = () => {
                 <div className="text-2xl font-bold text-white">89</div>
                 <div className="text-gray-300 text-sm">Sertifikat Terbit</div>
               </Card>
-              
-              <Card className="glass-effect border-white/20 text-center p-6">
-                <TrendingUp className="w-8 h-8 text-purple-400 mx-auto mb-3" />
-                <div className="text-2xl font-bold text-white">Rp52.5M</div>
-                <div className="text-gray-300 text-sm">Total Revenue</div>
-              </Card>
             </div>
 
-            <div className="grid lg:grid-cols-3 gap-8">
-              {/* Tree Management */}
-              <div className="lg:col-span-2 space-y-6">
-                <Card className="glass-effect border-white/20">
-                  <CardContent className="p-6">
-                    <div className="flex justify-between items-center mb-6">
-                      <h2 className="text-xl font-bold text-white">Manajemen Pohon</h2>
-                      <Button 
-                        onClick={() => setShowAddForm(!showAddForm)}
-                        className="bg-green-600 hover:bg-green-700"
-                      >
-                        <Plus className="w-4 h-4 mr-2" />
-                        Tambah Pohon
-                      </Button>
-                    </div>
+            {/* Tree Management */}
+            <Card className="glass-effect border-white/20">
+              <CardContent className="p-6">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-xl font-bold text-white">Manajemen Pohon</h2>
+                  <Button 
+                    onClick={() => setShowAddForm(!showAddForm)}
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Tambah Pohon
+                  </Button>
+                </div>
 
-                    {showAddForm && (
-                      <Card className="bg-white/5 border-white/10 mb-6">
-                        <CardContent className="p-4">
-                          <h3 className="text-lg font-semibold text-white mb-4">Tambah Pohon Baru</h3>
-                          <div className="grid md:grid-cols-2 gap-4">
-                            <Input
-                              placeholder="Nama Pohon"
-                              value={newTree.name}
-                              onChange={(e) => setNewTree({...newTree, name: e.target.value})}
-                              className="bg-white/10 border-white/20 text-white placeholder:text-gray-400"
-                            />
-                            <Select onValueChange={(value) => setNewTree({...newTree, category: value})}>
-                              <SelectTrigger className="bg-white/10 border-white/20 text-white">
-                                <SelectValue placeholder="Kategori" />
-                              </SelectTrigger>
-                              <SelectContent className="bg-gray-800 border-white/20 text-white">
-                                <SelectItem value="Pencegahan Erosi">Pencegahan Erosi</SelectItem>
-                                <SelectItem value="Ekosistem Vital">Ekosistem Vital</SelectItem>
-                                <SelectItem value="Menghasilkan Buah">Menghasilkan Buah</SelectItem>
-                                <SelectItem value="Konservasi">Konservasi</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <Input
-                              placeholder="Harga (Rp)"
-                              type="number"
-                              value={newTree.price}
-                              onChange={(e) => setNewTree({...newTree, price: e.target.value})}
-                              className="bg-white/10 border-white/20 text-white placeholder:text-gray-400"
-                            />
-                            <Input
-                              placeholder="Lokasi"
-                              value={newTree.location}
-                              onChange={(e) => setNewTree({...newTree, location: e.target.value})}
-                              className="bg-white/10 border-white/20 text-white placeholder:text-gray-400"
-                            />
-                            <div className="md:col-span-2">
-                              <Textarea
-                                placeholder="Deskripsi pohon"
-                                value={newTree.description}
-                                onChange={(e) => setNewTree({...newTree, description: e.target.value})}
+                {showAddForm && (
+                  <Card className="bg-white/5 border-white/10 mb-6">
+                    <CardContent className="p-4">
+                      <h3 className="text-lg font-semibold text-white mb-4">Tambah Pohon Baru</h3>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <Input
+                          placeholder="Nama Pohon"
+                          value={newTree.name}
+                          onChange={(e) => setNewTree({...newTree, name: e.target.value})}
+                          className="bg-white/10 border-white/20 text-white placeholder:text-gray-400"
+                        />
+                        <Select onValueChange={(value) => setNewTree({...newTree, category: value})}>
+                          <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                            <SelectValue placeholder="Kategori" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-gray-800 border-white/20 text-white">
+                            <SelectItem value="Pencegahan Erosi">Pencegahan Erosi</SelectItem>
+                            <SelectItem value="Ekosistem Vital">Ekosistem Vital</SelectItem>
+                            <SelectItem value="Menghasilkan Buah">Menghasilkan Buah</SelectItem>
+                            <SelectItem value="Konservasi">Konservasi</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <Input
+                          placeholder="Harga (Rp)"
+                          type="number"
+                          value={newTree.price}
+                          onChange={(e) => setNewTree({...newTree, price: e.target.value})}
+                          className="bg-white/10 border-white/20 text-white placeholder:text-gray-400"
+                        />
+                        <Input
+                          placeholder="Lokasi"
+                          value={newTree.location}
+                          onChange={(e) => setNewTree({...newTree, location: e.target.value})}
+                          className="bg-white/10 border-white/20 text-white placeholder:text-gray-400"
+                        />
+                        <div className="md:col-span-2">
+                          <Input
+                            placeholder="URL Gambar (https://...)"
+                            value={newTree.image}
+                            onChange={(e) => setNewTree({...newTree, image: e.target.value})}
+                            className="bg-white/10 border-white/20 text-white placeholder:text-gray-400"
+                          />
+                        </div>
+                        <Input
+                          placeholder="Penyerapan CO₂ (kg/tahun)"
+                          type="number"
+                          value={newTree.co2Absorption}
+                          onChange={(e) => setNewTree({...newTree, co2Absorption: e.target.value})}
+                          className="bg-white/10 border-white/20 text-white placeholder:text-gray-400"
+                        />
+                        <Input
+                          placeholder="Produksi Oksigen (kg/hari)"
+                          type="number"
+                          value={newTree.oxygenProduction}
+                          onChange={(e) => setNewTree({...newTree, oxygenProduction: e.target.value})}
+                          className="bg-white/10 border-white/20 text-white placeholder:text-gray-400"
+                        />
+                        <div className="md:col-span-2">
+                          <Textarea
+                            placeholder="Deskripsi pohon"
+                            value={newTree.description}
+                            onChange={(e) => setNewTree({...newTree, description: e.target.value})}
+                            className="bg-white/10 border-white/20 text-white placeholder:text-gray-400"
+                          />
+                        </div>
+                        <div className="md:col-span-2">
+                          <Textarea
+                            placeholder="Manfaat pohon (pisahkan dengan koma)"
+                            value={newTree.benefits}
+                            onChange={(e) => setNewTree({...newTree, benefits: e.target.value})}
+                            className="bg-white/10 border-white/20 text-white placeholder:text-gray-400"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex gap-2 mt-4">
+                        <Button onClick={handleAddTree} className="bg-green-600 hover:bg-green-700">
+                          Simpan
+                        </Button>
+                        <Button variant="outline" onClick={() => setShowAddForm(false)}>
+                          Batal
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                <div className="space-y-4">
+                  {trees.map((tree) => (
+                    <Card key={tree.id} className="bg-white/5 border-white/10">
+                      <CardContent className="p-4">
+                        {editingTree === tree.id ? (
+                          <div className="space-y-4">
+                            <div className="grid md:grid-cols-2 gap-4">
+                              <Input
+                                placeholder="Nama Pohon"
+                                value={editForm.name}
+                                onChange={(e) => setEditForm({...editForm, name: e.target.value})}
                                 className="bg-white/10 border-white/20 text-white placeholder:text-gray-400"
                               />
-                            </div>
-                            <div className="md:col-span-2">
-                              <Textarea
-                                placeholder="Manfaat pohon (pisahkan dengan koma)"
-                                value={newTree.benefits}
-                                onChange={(e) => setNewTree({...newTree, benefits: e.target.value})}
+                              <Select onValueChange={(value) => setEditForm({...editForm, category: value})} value={editForm.category}>
+                                <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                                  <SelectValue placeholder="Kategori" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-gray-800 border-white/20 text-white">
+                                  <SelectItem value="Pencegahan Erosi">Pencegahan Erosi</SelectItem>
+                                  <SelectItem value="Ekosistem Vital">Ekosistem Vital</SelectItem>
+                                  <SelectItem value="Menghasilkan Buah">Menghasilkan Buah</SelectItem>
+                                  <SelectItem value="Konservasi">Konservasi</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <Input
+                                placeholder="Harga (Rp)"
+                                type="number"
+                                value={editForm.price}
+                                onChange={(e) => setEditForm({...editForm, price: e.target.value})}
                                 className="bg-white/10 border-white/20 text-white placeholder:text-gray-400"
                               />
+                              <Input
+                                placeholder="Lokasi"
+                                value={editForm.location}
+                                onChange={(e) => setEditForm({...editForm, location: e.target.value})}
+                                className="bg-white/10 border-white/20 text-white placeholder:text-gray-400"
+                              />
+                              <div className="md:col-span-2">
+                                <Input
+                                  placeholder="URL Gambar"
+                                  value={editForm.image}
+                                  onChange={(e) => setEditForm({...editForm, image: e.target.value})}
+                                  className="bg-white/10 border-white/20 text-white placeholder:text-gray-400"
+                                />
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button onClick={saveEdit} className="bg-green-600 hover:bg-green-700">
+                                <Save className="w-4 h-4 mr-2" />
+                                Simpan
+                              </Button>
+                              <Button variant="outline" onClick={cancelEdit}>
+                                <X className="w-4 h-4 mr-2" />
+                                Batal
+                              </Button>
                             </div>
                           </div>
-                          <div className="flex gap-2 mt-4">
-                            <Button onClick={handleAddTree} className="bg-green-600 hover:bg-green-700">
-                              Simpan
-                            </Button>
-                            <Button variant="outline" onClick={() => setShowAddForm(false)}>
-                              Batal
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    )}
-
-                    <div className="space-y-4">
-                      {trees.map((tree) => (
-                        <Card key={tree.id} className="bg-white/5 border-white/10">
-                          <CardContent className="p-4">
-                            <div className="flex justify-between items-start">
+                        ) : (
+                          <div className="flex justify-between items-start">
+                            <div className="flex gap-4 flex-1">
+                              <img 
+                                src={tree.image} 
+                                alt={tree.name}
+                                className="w-16 h-16 object-cover rounded-lg"
+                              />
                               <div className="flex-1">
                                 <div className="flex items-center gap-3 mb-2">
                                   <h3 className="font-semibold text-white">{tree.name}</h3>
@@ -240,75 +409,33 @@ const Admin = () => {
                                   </span>
                                 </div>
                               </div>
-                              <div className="flex gap-2">
-                                <Button size="sm" variant="outline" className="border-blue-400 text-blue-400">
-                                  <Edit className="w-4 h-4" />
-                                </Button>
-                                <Button 
-                                  size="sm" 
-                                  variant="outline" 
-                                  className="border-red-400 text-red-400"
-                                  onClick={() => deleteTree(tree.id)}
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </Button>
-                              </div>
                             </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Quick Actions & Recent Activity */}
-              <div className="space-y-6">
-                <Card className="glass-effect border-white/20">
-                  <CardContent className="p-6">
-                    <h3 className="text-lg font-bold text-white mb-4">Quick Actions</h3>
-                    <div className="space-y-3">
-                      <Button className="w-full bg-blue-600 hover:bg-blue-700 justify-start">
-                        <Users className="w-4 h-4 mr-2" />
-                        Kelola Pengguna
-                      </Button>
-                      <Button className="w-full bg-purple-600 hover:bg-purple-700 justify-start">
-                        <Award className="w-4 h-4 mr-2" />
-                        Generate Laporan
-                      </Button>
-                      <Button className="w-full bg-orange-600 hover:bg-orange-700 justify-start">
-                        <TrendingUp className="w-4 h-4 mr-2" />
-                        Analisis Data
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="glass-effect border-white/20">
-                  <CardContent className="p-6">
-                    <h3 className="text-lg font-bold text-white mb-4">Aktivitas Terbaru</h3>
-                    <div className="space-y-3 text-sm">
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-300">Adopsi baru</span>
-                        <span className="text-green-400">+3</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-300">Sertifikat terbit</span>
-                        <span className="text-blue-400">+5</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-300">Revenue hari ini</span>
-                        <span className="text-yellow-400">Rp1.2M</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-300">Pengguna baru</span>
-                        <span className="text-purple-400">+8</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
+                            <div className="flex gap-2">
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                className="border-blue-400 text-blue-400"
+                                onClick={() => startEdit(tree)}
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                className="border-red-400 text-red-400"
+                                onClick={() => deleteTree(tree.id)}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
