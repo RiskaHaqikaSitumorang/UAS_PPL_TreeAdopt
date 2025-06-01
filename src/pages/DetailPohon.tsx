@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
@@ -219,7 +218,7 @@ const DetailPohon = () => {
 
                       <div>
                         <label className="block text-sm font-medium text-gray-300 mb-2">
-                          <Tree className="w-4 h-4 inline mr-2" />
+                          <Trees className="w-4 h-4 inline mr-2" />
                           Nama untuk Pohon
                         </label>
                         <Input
