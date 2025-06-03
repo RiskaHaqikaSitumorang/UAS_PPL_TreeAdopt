@@ -1,7 +1,7 @@
 
 # TreeAdopt 🌳
+![screencapture-localhost-8081-2025-06-04-03_09_45](https://github.com/user-attachments/assets/62ed5c43-b58a-422c-bdb2-641d02056045)
 
-![TreeAdopt Banner](https://example.com/path-to-your-banner-image.jpg)
 
 TreeAdopt is a web application designed to promote environmental sustainability by enabling users to adopt trees, track their environmental impact, and receive digital certificates for their contributions.
 
