@@ -16,13 +16,13 @@ const Edukasi = () => {
       author: 'Dr. Siti Nurhaliza',
       date: '15 Maret 2024',
       category: 'Konservasi',
-      url: 'https://www.wwf.or.id/program/hutan/'
+      url: 'https://www.mertani.co.id/post/pentingnya-konservasi-hutan-untuk-menanggulangi-krisis-lingkungan'
     },
     {
       id: 2,
       title: 'Dampak Perubahan Iklim terhadap Ekosistem',
       description: 'Mengenal lebih dalam tentang perubahan iklim dan dampaknya terhadap kehidupan di bumi.',
-      image: 'https://images.unsplash.com/photo-1569163139394-de4e4f43e4e3?auto=format&fit=crop&w=500&q=80',
+      image: 'https://cybex.id/xms/files/1/202410/6c8570a148e9af30e39a5cf866f5e788.jpg',
       author: 'Prof. Ahmad Wijaya',
       date: '10 Maret 2024',
       category: 'Perubahan Iklim',
@@ -42,7 +42,7 @@ const Edukasi = () => {
       id: 4,
       title: 'Program Rehabilitasi Hutan dan Lahan',
       description: 'Mengenal program pemerintah dalam rehabilitasi hutan dan lahan yang rusak.',
-      image: 'https://images.unsplash.com/photo-1574482620911-47558b874cea?auto=format&fit=crop&w=500&q=80',
+      image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqIL3efHBbWF8t18RTiMpbb23WwCiXdgZezw&s',
       author: 'Tim Kemenhut',
       date: '28 Februari 2024',
       category: 'Program Pemerintah',
@@ -62,7 +62,7 @@ const Edukasi = () => {
       id: 6,
       title: 'Keanekaragaman Hayati Indonesia',
       description: 'Memahami kekayaan flora dan fauna Indonesia serta upaya pelestariannya.',
-      image: 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?auto=format&fit=crop&w=500&q=80',
+      image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSLfkwYJGXGHSgv6FBDk1k-rVdp_lfBDRnv5fkdFAtP86O-ZomH6s3-aCQoDW1nGPA87k&usqp=CAU',
       author: 'Prof. Maria Biodiversitas',
       date: '15 Februari 2024',
       category: 'Biodiversitas',

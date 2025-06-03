@@ -1,87 +1,109 @@
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: 'user' | 'admin';
-}
+import { createContext, useContext, useState, useEffect } from 'react';
+import axios from 'axios';
+import { toast } from 'sonner';
 
 interface AuthContextType {
-  user: User | null;
-  login: (email: string, password: string) => Promise<boolean>;
-  register: (name: string, email: string, password: string, phone: string) => Promise<boolean>;
-  logout: () => void;
+  user: any;
   isLoading: boolean;
+  login: (email: string, password: string) => Promise<boolean>;
+  register: (
+    name: string,
+    email: string,
+    password: string,
+    phone: string,
+    userType?: string
+  ) => Promise<boolean>;
+  logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    const token = localStorage.getItem('token');
+    if (token) {
+      axios
+        .get('http://localhost:5000/api/users/me', {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((response) => {
+          setUser(response.data);
+        })
+        .catch(() => {
+          localStorage.removeItem('token');
+          setUser(null);
+        });
     }
-    setIsLoading(false);
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    setIsLoading(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Mock login logic
-    if (email === 'admin@treeadopt.com' && password === 'admin123') {
-      const adminUser = { id: '1', name: 'Admin', email, role: 'admin' as const };
-      setUser(adminUser);
-      localStorage.setItem('user', JSON.stringify(adminUser));
-      setIsLoading(false);
+  const login = async (email: string, password: string) => {
+    try {
+      setIsLoading(true);
+      const response = await axios.post('http://localhost:5000/api/login', {
+        email,
+        password,
+      });
+      localStorage.setItem('token', response.data.token);
+      setUser(response.data.user);
+      toast.success('Login berhasil!');
       return true;
-    } else if (email && password) {
-      const normalUser = { id: '2', name: 'User', email, role: 'user' as const };
-      setUser(normalUser);
-      localStorage.setItem('user', JSON.stringify(normalUser));
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Login gagal');
+      return false;
+    } finally {
       setIsLoading(false);
-      return true;
     }
-    
-    setIsLoading(false);
-    return false;
   };
 
-  const register = async (name: string, email: string, password: string, phone: string): Promise<boolean> => {
-    setIsLoading(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const newUser = { id: Date.now().toString(), name, email, role: 'user' as const };
-    setUser(newUser);
-    localStorage.setItem('user', JSON.stringify(newUser));
-    setIsLoading(false);
-    return true;
+  const register = async (
+    name: string,
+    email: string,
+    password: string,
+    phone: string,
+    userType: string = 'individual'
+  ) => {
+    try {
+      setIsLoading(true);
+      const response = await axios.post('http://localhost:5000/api/register', {
+        name,
+        email,
+        password,
+        phone,
+        userType,
+      });
+      localStorage.setItem('token', response.data.token);
+      setUser(response.data.user);
+      toast.success('Registrasi berhasil!');
+      return true;
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Registrasi gagal');
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const logout = () => {
+    localStorage.removeItem('token');
     setUser(null);
-    localStorage.removeItem('user');
+    toast.success('Logout berhasil');
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, isLoading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 };

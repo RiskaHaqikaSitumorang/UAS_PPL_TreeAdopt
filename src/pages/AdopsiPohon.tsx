@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,62 +12,24 @@ import { toast } from 'sonner';
 const AdopsiPohon = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [trees] = useState([
-    {
-      id: 1,
-      name: 'Pohon Jati',
-      category: 'Pencegahan Erosi',
-      price: 250000,
-      benefits: ['Penyerap CO₂ tinggi', 'Umur hingga 100 tahun', 'Hutan Kota Jakarta'],
-      image: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=500&q=80',
-      location: 'Jakarta Selatan'
-    },
-    {
-      id: 2,
-      name: 'Pohon Mangrove',
-      category: 'Ekosistem Vital',
-      price: 175000,
-      benefits: ['Pencegah abrasi pantai', 'Habitat biota laut', 'Pesisir Utara Jakarta'],
-      image: 'https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=500&q=80',
-      location: 'Pantai Utara Jakarta'
-    },
-    {
-      id: 3,
-      name: 'Pohon Buah Lokal',
-      category: 'Menghasilkan Buah',
-      price: 300000,
-      benefits: ['Panen buah organik', 'Penyerapan air hujan', 'Lahan Mitra Petani Banda Aceh'],
-      image: 'https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=500&q=80',
-      location: 'Banda Aceh'
-    },
-    {
-      id: 4,
-      name: 'Pohon Pinus',
-      category: 'Konservasi',
-      price: 200000,
-      benefits: ['Tahan cuaca ekstrem', 'Habitat satwa', 'Pegunungan Jawa Barat'],
-      image: 'https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&w=500&q=80',
-      location: 'Bandung'
-    },
-    {
-      id: 5,
-      name: 'Pohon Bambu',
-      category: 'Ramah Lingkungan',
-      price: 150000,
-      benefits: ['Pertumbuhan cepat', 'Material berkelanjutan', 'Desa Hijau Yogyakarta'],
-      image: 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?auto=format&fit=crop&w=500&q=80',
-      location: 'Yogyakarta'
-    },
-    {
-      id: 6,
-      name: 'Pohon Mahoni',
-      category: 'Hutan Kota',
-      price: 275000,
-      benefits: ['Peneduh alami', 'Kualitas kayu tinggi', 'Taman Kota Surabaya'],
-      image: 'https://images.unsplash.com/photo-1500673922987-e212871fec22?auto=format&fit=crop&w=500&q=80',
-      location: 'Surabaya'
-    }
-  ]);
+  const [trees, setTrees] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTrees = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get('http://localhost:5000/api/trees');
+        setTrees(response.data);
+      } catch (error) {
+        console.error('Error fetching trees:', error);
+        toast.error('Gagal memuat daftar pohon');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTrees();
+  }, []);
 
   const handleAdoptClick = (treeId: number) => {
     if (!user) {
@@ -76,6 +39,16 @@ const AdopsiPohon = () => {
     }
     navigate(`/detail-pohon/${treeId}`);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen forest-bg">
+        <div className="min-h-screen bg-gradient-to-b from-black/40 via-black/20 to-black/40 flex items-center justify-center">
+          <div className="text-white text-xl">Loading...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen forest-bg">
@@ -104,14 +77,14 @@ const AdopsiPohon = () => {
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {trees.map((tree) => (
-                <Card key={tree.id} className="glass-effect border-white/20 overflow-hidden hover:scale-105 transition-transform duration-300">
+              {trees.map((tree: any) => (
+                <Card key={tree._id} className="glass-effect border-white/20 overflow-hidden hover:scale-105 transition-transform duration-300">
                   <div className="relative">
-                    <img 
-                      src={tree.image} 
-                      alt={tree.name}
-                      className="w-full h-48 object-cover"
-                    />
+                  <img 
+                    src={`http://localhost:5000/uploads/${tree.image}`} 
+                    alt={tree.name}
+                    className="w-full h-48 object-cover"
+                  />
                     <Badge className="absolute top-3 right-3 bg-green-600 text-white">
                       {tree.category}
                     </Badge>
@@ -126,7 +99,7 @@ const AdopsiPohon = () => {
                     </div>
 
                     <div className="space-y-2 mb-4">
-                      {tree.benefits.map((benefit, index) => (
+                      {tree.benefits.map((benefit: string, index: number) => (
                         <div key={index} className="flex items-center text-gray-200 text-sm">
                           <CheckCircle className="w-4 h-4 text-green-400 mr-2 flex-shrink-0" />
                           <span>{benefit}</span>
@@ -140,7 +113,7 @@ const AdopsiPohon = () => {
 
                     <Button 
                       className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold"
-                      onClick={() => handleAdoptClick(tree.id)}
+                      onClick={() => handleAdoptClick(tree._id)}
                     >
                       <Leaf className="w-4 h-4 mr-2" />
                       Adopsi Sekarang

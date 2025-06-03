@@ -1,6 +1,6 @@
-
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import axios from 'axios';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +12,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
 const Payment = () => {
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const [adoptionData, setAdoptionData] = useState<any>(null);
   const [paymentMethod, setPaymentMethod] = useState('bank_transfer');
@@ -20,15 +22,61 @@ const Payment = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [showCertificate, setShowCertificate] = useState(false);
   const [generatedCertificate, setGeneratedCertificate] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const storedData = localStorage.getItem('adoptionData');
-    if (storedData) {
-      setAdoptionData(JSON.parse(storedData));
-    } else {
-      navigate('/adopsi-pohon');
+    const fetchTree = async () => {
+      if (!id || id === 'undefined') {
+        console.error('Invalid tree ID:', id);
+        setError('ID pohon tidak valid');
+        setLoading(false);
+        return;
+      }
+      try {
+        console.log(`Fetching tree with ID: ${id}`);
+        const response = await axios.get(`http://localhost:5000/api/trees/${id}`);
+        if (!response.data) {
+          throw new Error('No data returned for tree ID');
+        }
+        console.log('Tree data:', response.data);
+        const state = location.state as any;
+        console.log('Location state:', state);
+        if (!state) {
+          console.warn('No adoption data provided in location.state');
+          setError('Data adopsi tidak tersedia');
+          setLoading(false);
+          return;
+        }
+        setAdoptionData({
+          tree: {
+            ...response.data,
+            image: response.data.image ? `http://localhost:5000/uploads/${response.data.image}` : null,
+          },
+          formData: {
+            adopterName: state.adopterName || '',
+            treeName: state.treeName || '',
+            email: state.email || '',
+            phone: state.phone || '',
+          },
+          totalPrice: state.totalPrice || response.data.price,
+        });
+      } catch (error: any) {
+        console.error('Error fetching tree:', error.response?.data || error.message);
+        setError(error.response?.status === 404 ? 'Pohon tidak ditemukan' : `Gagal memuat data pohon: ${error.message}`);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (!user) {
+      toast.error('Silakan login terlebih dahulu');
+      navigate('/login');
+      return;
     }
-  }, [navigate]);
+
+    fetchTree();
+  }, [id, location.state, navigate, user]);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -37,26 +85,34 @@ const Payment = () => {
         toast.error('Ukuran file maksimal 5MB');
         return;
       }
+      const validTypes = ['image/jpeg', 'image/png'];
+      if (!validTypes.includes(file.type)) {
+        toast.error('File harus berupa JPG atau PNG');
+        return;
+      }
       setUploadedFile(file);
       toast.success('Bukti pembayaran berhasil diupload');
     }
   };
 
   const downloadCertificate = () => {
-    if (!generatedCertificate) return;
+    if (!generatedCertificate) {
+      console.error('No certificate data available for download');
+      toast.error('Tidak ada sertifikat untuk diunduh');
+      return;
+    }
     
-    // Create a simple text version for download
     const certificateText = `
 SERTIFIKAT ADOPSI POHON
 TreeAdopt Indonesia
 
-ID Sertifikat: ${generatedCertificate.certificateId}
-Nama Pengadopsi: ${generatedCertificate.adopterName}
+ID Sertifikat: ${generatedCertificate._id}
+Nama Pengadopsi: ${generatedCertificate.name}
 Nama Pohon: ${generatedCertificate.treeName}
-Jenis Pohon: ${generatedCertificate.treeType}
-Lokasi: ${generatedCertificate.location}
-Tanggal Adopsi: ${generatedCertificate.adoptionDate}
-Jumlah Donasi: Rp${generatedCertificate.amount.toLocaleString('id-ID')}
+Jenis Pohon: ${generatedCertificate.treeId.category}
+Lokasi: ${generatedCertificate.treeId.location}
+Tanggal Adopsi: ${generatedCertificate.date}
+Jumlah Donasi: Rp${generatedCertificate.treeId.price.toLocaleString('id-ID')}
 
 Dampak Lingkungan:
 Pohon ini akan menyerap sekitar 48 kg CO₂ per tahun dan memberikan oksigen untuk 2 orang.
@@ -73,7 +129,7 @@ Terima kasih telah berkontribusi untuk bumi yang lebih hijau!
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Sertifikat-${generatedCertificate.certificateId}.txt`;
+    a.download = `Sertifikat-${generatedCertificate._id}.txt`;
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(url);
@@ -86,40 +142,90 @@ Terima kasih telah berkontribusi untuk bumi yang lebih hijau!
       return;
     }
 
+    if (!user) {
+      toast.error('Anda harus login untuk melanjutkan pembayaran');
+      navigate('/login');
+      return;
+    }
+
+    if (!adoptionData || !id) {
+      console.error('Missing adoption data or tree ID:', { adoptionData, id });
+      toast.error('Data adopsi atau pohon tidak tersedia');
+      return;
+    }
+
+    if (!adoptionData.formData.adopterName || !adoptionData.formData.email || !adoptionData.formData.treeName) {
+      console.error('Missing required form data:', adoptionData.formData);
+      toast.error('Mohon lengkapi semua data adopsi (nama, email, nama pohon)');
+      return;
+    }
+
     setIsProcessing(true);
-    
-    // Simulate payment processing
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Generate certificate data
-    const certificateData = {
-      certificateId: `TREE-${Date.now()}`,
-      adopterName: adoptionData.formData.adopterName,
-      treeName: adoptionData.formData.treeName,
-      treeType: adoptionData.tree.name,
-      location: adoptionData.tree.location,
-      adoptionDate: new Date().toLocaleDateString('id-ID'),
-      amount: adoptionData.totalPrice
-    };
-    
-    setGeneratedCertificate(certificateData);
-    
-    // Store certificate data
-    const existingCertificates = JSON.parse(localStorage.getItem('certificates') || '[]');
-    existingCertificates.push(certificateData);
-    localStorage.setItem('certificates', JSON.stringify(existingCertificates));
-    
-    setIsProcessing(false);
-    setShowCertificate(true);
-    toast.success('Pembayaran berhasil! Sertifikat Anda telah diterbitkan.');
+
+    try {
+      const certificateData = new FormData();
+      certificateData.append('userId', user._id);
+      certificateData.append('treeId', id);
+      certificateData.append('name', adoptionData.formData.adopterName);
+      certificateData.append('email', adoptionData.formData.email);
+      certificateData.append('treeName', adoptionData.formData.treeName);
+      certificateData.append('paymentMethod', paymentMethod);
+      if (uploadedFile) {
+        certificateData.append('certificate', uploadedFile);
+      }
+
+      console.log('Sending certificate data:', {
+        userId: user._id,
+        treeId: id,
+        name: adoptionData.formData.adopterName,
+        email: adoptionData.formData.email,
+        treeName: adoptionData.formData.treeName,
+        paymentMethod,
+        certificate: uploadedFile?.name,
+      });
+
+      const response = await axios.post('http://localhost:5000/api/certificates', certificateData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      console.log('Certificate API response:', response.data);
+
+      if (!response.data._id) {
+        throw new Error('Invalid certificate response: missing _id');
+      }
+
+      setGeneratedCertificate({
+        _id: response.data._id,
+        name: response.data.name,
+        treeName: response.data.treeName,
+        treeId: {
+          category: response.data.treeId.category,
+          location: response.data.treeId.location,
+          price: response.data.treeId.price,
+        },
+        date: new Date(response.data.date).toLocaleDateString('id-ID'),
+        certificateUrl: response.data.certificateUrl ? `http://localhost:5000/uploads/${response.data.certificateUrl}` : null,
+      });
+
+      setShowCertificate(true);
+      toast.success('Pembayaran berhasil! Sertifikat Anda telah diterbitkan.');
+    } catch (error: any) {
+      console.error('Payment error:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+      });
+      toast.error(error.response?.data?.message || 'Gagal memproses pembayaran. Silakan coba lagi.');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const goToDashboard = () => {
-    localStorage.removeItem('adoptionData');
     navigate('/dashboard');
   };
 
-  if (!adoptionData) {
+  if (loading) {
     return (
       <div className="min-h-screen forest-bg">
         <div className="min-h-screen bg-gradient-to-b from-black/40 via-black/20 to-black/40 flex items-center justify-center">
@@ -129,44 +235,65 @@ Terima kasih telah berkontribusi untuk bumi yang lebih hijau!
     );
   }
 
-  if (showCertificate && generatedCertificate) {
+  if (error) {
     return (
       <div className="min-h-screen forest-bg">
-        <div className="min-h-screen bg-gradient-to-b from-black/40 via-black/20 to-black/40">
-          <Navbar />
-          
-          <div className="pt-20 pb-12 px-4">
-            <div className="max-w-4xl mx-auto">
-              <div className="text-center mb-8">
-                <h1 className="text-3xl font-bold text-white mb-4">🎉 Selamat! Adopsi Berhasil</h1>
-                <p className="text-gray-200">
-                  Sertifikat adopsi pohon Anda telah berhasil diterbitkan
-                </p>
-              </div>
+        <div className="min-h-screen bg-gradient-to-b from-black/40 via-black/20 to-black/40 flex items-center justify-center">
+          <div className="text-white text-xl">{error}</div>
+        </div>
+      </div>
+    );
+  }
 
-              <div className="mb-8">
-                <Certificate certificate={generatedCertificate} />
-              </div>
+  if (showCertificate && generatedCertificate) {
+    try {
+      return (
+        <div className="min-h-screen forest-bg">
+          <div className="min-h-screen bg-gradient-to-b from-black/40 via-black/20 to-black/40">
+            <Navbar />
+            
+            <div className="pt-20 pb-12 px-4">
+              <div className="max-w-4xl mx-auto">
+                <div className="text-center mb-8">
+                  <h1 className="text-3xl font-bold text-white mb-4">🎉 Selamat! Adopsi Berhasil</h1>
+                  <p className="text-gray-200">
+                    Sertifikat adopsi pohon Anda telah berhasil diterbitkan
+                  </p>
+                </div>
 
-              <div className="flex gap-4 justify-center">
-                <Button 
-                  onClick={downloadCertificate}
-                  className="bg-green-600 hover:bg-green-700 text-white"
-                >
-                  Download Sertifikat
-                </Button>
-                <Button 
-                  onClick={goToDashboard}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
-                >
-                  Lihat Dashboard
-                </Button>
+                <div className="mb-8">
+                  <Certificate certificate={generatedCertificate} />
+                </div>
+
+                <div className="flex gap-4 justify-center">
+                  <Button 
+                    onClick={downloadCertificate}
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    Download Sertifikat
+                  </Button>
+                  <Button 
+                    onClick={goToDashboard}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    Lihat Dashboard
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    );
+      );
+    } catch (renderError: any) {
+      console.error('Error rendering certificate view:', renderError);
+      return (
+        <div className="min-h-screen forest-bg">
+          <div className="min-h-screen bg-gradient-to-b from-black/40 via-black/20 to-black/40 flex items-center justify-center">
+            <div className="text-white text-xl">Gagal menampilkan sertifikat. Silakan coba lagi.</div>
+          </div>
+        </div>
+      );
+    }
   }
 
   const paymentMethods = [
@@ -211,11 +338,21 @@ Terima kasih telah berkontribusi untuk bumi yang lebih hijau!
                   <h2 className="text-xl font-bold text-white mb-6">Ringkasan Adopsi</h2>
                   
                   <div className="flex gap-4 mb-6">
-                    <img 
-                      src={adoptionData.tree.image} 
-                      alt={adoptionData.tree.name}
-                      className="w-20 h-20 object-cover rounded-lg"
-                    />
+                    {adoptionData.tree.image ? (
+                      <img 
+                        src={adoptionData.tree.image} 
+                        alt={adoptionData.tree.name}
+                        className="w-20 h-20 object-cover rounded-lg"
+                        onError={(e) => {
+                          console.error('Failed to load image:', adoptionData.tree.image);
+                          e.currentTarget.src = '/placeholder-tree.jpg';
+                        }}
+                      />
+                    ) : (
+                      <div className="w-20 h-20 bg-gray-500 rounded-lg flex items-center justify-center text-white text-xs">
+                        No Image
+                      </div>
+                    )}
                     <div className="flex-1">
                       <h3 className="font-semibold text-white">{adoptionData.tree.name}</h3>
                       <p className="text-gray-300 text-sm">{adoptionData.tree.location}</p>

@@ -111,13 +111,13 @@ const Index = () => {
                     </div>
                     <div className="flex items-center gap-3">
                       <Users className="w-5 h-5 text-green-400" />
-                      <span className="text-gray-200">Bergabung dengan komunitas peduli lingkungan</span>
+                      <span className="text-gray-200">Bergabung untuk bersamma menghijaukan bumi</span>
                     </div>
                   </div>
                 </div>
                 <div className="flex-1">
                   <img 
-                    src="https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&w=500&q=80" 
+                    src="https://raw.githubusercontent.com/RiskaHaqikaSitumorang/UAS_PPL_TreeAdopt/main/about-image.jpg" 
                     alt="Penanaman pohon" 
                     className="rounded-lg w-full h-64 object-cover"
                   />
@@ -165,9 +165,9 @@ const Index = () => {
 
               <Card className="glass-effect border-white/20 text-center p-6">
                 <Users className="w-12 h-12 text-green-400 mx-auto mb-4" />
-                <h3 className="font-semibold text-white mb-2">Berbasis Komunitas</h3>
+                <h3 className="font-semibold text-white mb-2">branding Korporat</h3>
                 <p className="text-gray-200 text-sm">
-                  Bergabung dengan ribuan orang yang peduli lingkungan di seluruh Indonesia
+                  Perusahaan dapat meningkatkan citra sebagai organisasi yang peduli lingkungan melalui adopsi pohon.
                 </p>
               </Card>
             </div>
@@ -175,19 +175,19 @@ const Index = () => {
             <div className="mt-12 glass-effect rounded-2xl p-8">
               <div className="flex items-center justify-center mb-6">
                 <Leaf className="w-8 h-8 text-green-400 mr-3" />
-                <h3 className="text-2xl font-bold text-white">Mari Bersama Menyelamatkan Bumi</h3>
+                <h3 className="text-2xl font-bold text-white">Mari Bersama Menyelamatkan Bumi dan capai target agar</h3>
               </div>
               <div className="grid md:grid-cols-4 gap-8 text-center">
                 <div>
-                  <div className="text-3xl font-bold text-green-400 mb-2">1000+</div>
+                  <div className="text-3xl font-bold text-green-400 mb-2">1000000+</div>
                   <div className="text-gray-200">Pohon Teradopsi</div>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-green-400 mb-2">500+</div>
+                  <div className="text-3xl font-bold text-green-400 mb-2">500000+</div>
                   <div className="text-gray-200">Pengguna Aktif</div>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-green-400 mb-2">50+</div>
+                  <div className="text-3xl font-bold text-green-400 mb-2">500+</div>
                   <div className="text-gray-200">Lokasi Penanaman</div>
                 </div>
                 <div>
@@ -228,8 +228,8 @@ const Index = () => {
                 },
                 {
                   step: "4",
-                  title: "Pantau Progres",
-                  description: "Pantau pertumbuhan pohon Anda melalui dashboard dengan laporan berkala."
+                  title: "Pantau Dampak",
+                  description: "Pantau Dampak pohon Anda melalui dashboard dengan laporan yang diberikan."
                 }
               ].map((item) => (
                 <Card key={item.step} className="glass-effect border-white/20 text-center p-6">

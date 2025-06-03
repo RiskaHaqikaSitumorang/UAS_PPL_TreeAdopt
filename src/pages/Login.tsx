@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -16,13 +17,9 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     const success = await login(email, password);
     if (success) {
-      toast.success('Login berhasil!');
       navigate('/dashboard');
-    } else {
-      toast.error('Email atau password salah');
     }
   };
 
@@ -55,7 +52,7 @@ const Login = () => {
 
               <div className="relative">
                 <Input
-                  type={showPassword ? "text" : "password"}
+                  type={showPassword ? 'text' : 'password'}
                   placeholder="Kata Sandi"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -71,8 +68,8 @@ const Login = () => {
                 </button>
               </div>
 
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3"
                 disabled={isLoading}
               >
@@ -92,7 +89,7 @@ const Login = () => {
             <div className="mt-6 p-4 bg-white/5 rounded-lg">
               <p className="text-xs text-gray-400 mb-2">Demo accounts:</p>
               <p className="text-xs text-gray-300">Admin: admin@treeadopt.com / admin123</p>
-              <p className="text-xs text-gray-300">User: any email / any password</p>
+              <p className="text-xs text-gray-300">User: user@example.com / user123</p>
             </div>
           </CardContent>
         </Card>

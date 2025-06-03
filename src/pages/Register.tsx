@@ -15,68 +15,60 @@ const Register = () => {
     phone: '',
     userType: '',
     email: '',
-    password: ''
+    password: '',
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState<{[key: string]: string}>({});
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const { register, isLoading } = useAuth();
   const navigate = useNavigate();
 
   const validateForm = () => {
-    const newErrors: {[key: string]: string} = {};
-    
-    // Validasi nama (minimal 3 karakter)
+    const newErrors: { [key: string]: string } = {};
+
     if (!formData.name || formData.name.length < 3) {
       newErrors.name = 'Nama minimal 3 karakter';
     }
-    
-    // Validasi phone (format Indonesia: 08xx atau +62xxx)
+
     const phoneRegex = /^(\+62|62|0)8[1-9][0-9]{6,9}$/;
     if (!formData.phone || !phoneRegex.test(formData.phone)) {
       newErrors.phone = 'Format: 08xxxxxxxxx atau +628xxxxxxxxx';
     }
-    
-    // Validasi email
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email || !emailRegex.test(formData.email)) {
       newErrors.email = 'Format email tidak valid';
     }
-    
-    // Check email sudah terdaftar (simulasi)
-    const existingEmails = ['admin@treeadopt.com', 'user@example.com'];
-    if (existingEmails.includes(formData.email.toLowerCase())) {
-      newErrors.email = 'Email sudah terdaftar, gunakan email lain';
-    }
-    
-    // Validasi password (minimal 6 karakter, ada huruf dan angka)
+
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
     if (!formData.password || !passwordRegex.test(formData.password)) {
       newErrors.password = 'Minimal 6 karakter, kombinasi huruf dan angka';
     }
-    
-    // Validasi jenis pengguna
+
     if (!formData.userType) {
       newErrors.userType = 'Pilih jenis pengguna';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       toast.error('Mohon perbaiki kesalahan pada form');
       return;
     }
-    
-    const success = await register(formData.name, formData.email, formData.password, formData.phone);
+
+    const success = await register(
+      formData.name,
+      formData.email,
+      formData.password,
+      formData.phone,
+      formData.userType
+    );
     if (success) {
-      toast.success('Registrasi berhasil!');
       navigate('/dashboard');
-    } else {
-      toast.error('Terjadi kesalahan saat registrasi');
     }
   };
 
@@ -101,7 +93,7 @@ const Register = () => {
                   type="text"
                   placeholder="Nama Lengkap (min. 3 karakter)"
                   value={formData.name}
-                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className={`bg-white/10 border-white/20 text-white placeholder:text-gray-400 ${errors.name ? 'border-red-500' : ''}`}
                   required
                 />
@@ -118,7 +110,7 @@ const Register = () => {
                   type="tel"
                   placeholder="08xxxxxxxxx atau +628xxxxxxxxx"
                   value={formData.phone}
-                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   className={`bg-white/10 border-white/20 text-white placeholder:text-gray-400 ${errors.phone ? 'border-red-500' : ''}`}
                   required
                 />
@@ -131,7 +123,7 @@ const Register = () => {
               </div>
 
               <div>
-                <Select onValueChange={(value) => setFormData({...formData, userType: value})}>
+                <Select onValueChange={(value) => setFormData({ ...formData, userType: value })}>
                   <SelectTrigger className={`bg-white/10 border-white/20 text-white ${errors.userType ? 'border-red-500' : ''}`}>
                     <SelectValue placeholder="Jenis Pengguna" />
                   </SelectTrigger>
@@ -154,7 +146,7 @@ const Register = () => {
                   type="email"
                   placeholder="nama@email.com"
                   value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   className={`bg-white/10 border-white/20 text-white placeholder:text-gray-400 ${errors.email ? 'border-red-500' : ''}`}
                   required
                 />
@@ -168,10 +160,10 @@ const Register = () => {
 
               <div className="relative">
                 <Input
-                  type={showPassword ? "text" : "password"}
+                  type={showPassword ? 'text' : 'password'}
                   placeholder="Min. 6 karakter, huruf + angka"
                   value={formData.password}
-                  onChange={(e) => setFormData({...formData, password: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   className={`bg-white/10 border-white/20 text-white placeholder:text-gray-400 pr-10 ${errors.password ? 'border-red-500' : ''}`}
                   required
                 />
@@ -190,8 +182,8 @@ const Register = () => {
                 )}
               </div>
 
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 mt-6"
                 disabled={isLoading}
               >

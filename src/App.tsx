@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,6 +12,7 @@ import DetailPohon from "./pages/DetailPohon";
 import Payment from "./pages/Payment";
 import Dashboard from "./pages/Dashboard";
 import Admin from "./pages/Admin";
+import Edukasi from "./pages/Edukasi";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,9 +30,10 @@ const App = () => (
             <Route path="/register" element={<Register />} />
             <Route path="/adopsi-pohon" element={<AdopsiPohon />} />
             <Route path="/detail-pohon/:id" element={<DetailPohon />} />
-            <Route path="/payment" element={<Payment />} />
+            <Route path="/payment/:id" element={<Payment />} /> {/* Updated to include :id */}
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/edukasi" element={<Edukasi />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

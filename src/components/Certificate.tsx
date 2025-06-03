@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -6,18 +5,33 @@ import { Trees, Calendar, MapPin, Award } from 'lucide-react';
 
 interface CertificateProps {
   certificate: {
-    certificateId: string;
-    adopterName: string;
+    _id: string;
+    name: string;
     treeName: string;
-    treeType: string;
-    location: string;
-    adoptionDate: string;
-    amount: number;
+    treeId?: {
+      category?: string;
+      location?: string;
+      price?: number;
+    };
+    date: string;
   };
   showBorder?: boolean;
 }
 
 const Certificate = ({ certificate, showBorder = true }: CertificateProps) => {
+  // Format date for display
+  const formattedDate = certificate.date
+    ? new Date(certificate.date).toLocaleDateString('id-ID', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      })
+    : new Date().toLocaleDateString('id-ID', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      });
+
   return (
     <Card className={`relative overflow-hidden ${showBorder ? 'border-4 border-green-600' : 'border-0'} bg-gradient-to-br from-green-50 to-emerald-50 max-w-4xl mx-auto`}>
       {/* Decorative elements */}
@@ -44,7 +58,7 @@ const Certificate = ({ certificate, showBorder = true }: CertificateProps) => {
         {/* Certificate ID */}
         <div className="mb-6">
           <Badge className="bg-green-600 text-white px-4 py-1 text-base font-semibold">
-            ID: {certificate.certificateId}
+            ID: {certificate._id || 'Tidak tersedia'}
           </Badge>
         </div>
 
@@ -55,7 +69,7 @@ const Certificate = ({ certificate, showBorder = true }: CertificateProps) => {
           </p>
           
           <div className="text-2xl font-bold text-green-800 py-3 border-t-2 border-b-2 border-green-300">
-            {certificate.adopterName}
+            {certificate.name || 'Tidak tersedia'}
           </div>
           
           <p className="text-lg text-gray-700">
@@ -64,10 +78,10 @@ const Certificate = ({ certificate, showBorder = true }: CertificateProps) => {
           
           <div className="bg-green-100 p-4 rounded-lg border-2 border-green-300">
             <div className="text-xl font-bold text-green-800 mb-1">
-              "{certificate.treeName}"
+              "{certificate.treeName || 'Tidak tersedia'}"
             </div>
             <div className="text-base text-green-700">
-              {certificate.treeType}
+              {certificate.treeId?.category || 'Tidak tersedia'}
             </div>
           </div>
         </div>
@@ -79,7 +93,7 @@ const Certificate = ({ certificate, showBorder = true }: CertificateProps) => {
               <Calendar className="w-4 h-4 text-green-600 mr-2" />
               <span className="font-semibold text-green-800 text-sm">Tanggal Adopsi</span>
             </div>
-            <p className="text-gray-700 text-sm">{certificate.adoptionDate}</p>
+            <p className="text-gray-700 text-sm">{formattedDate}</p>
           </div>
           
           <div className="bg-white p-3 rounded-lg border border-green-200">
@@ -87,7 +101,7 @@ const Certificate = ({ certificate, showBorder = true }: CertificateProps) => {
               <MapPin className="w-4 h-4 text-green-600 mr-2" />
               <span className="font-semibold text-green-800 text-sm">Lokasi</span>
             </div>
-            <p className="text-gray-700 text-sm">{certificate.location}</p>
+            <p className="text-gray-700 text-sm">{certificate.treeId?.location || 'Tidak tersedia'}</p>
           </div>
           
           <div className="bg-white p-3 rounded-lg border border-green-200">
@@ -95,7 +109,7 @@ const Certificate = ({ certificate, showBorder = true }: CertificateProps) => {
               <Award className="w-4 h-4 text-green-600 mr-2" />
               <span className="font-semibold text-green-800 text-sm">Kontribusi</span>
             </div>
-            <p className="text-gray-700 text-sm">Rp{certificate.amount.toLocaleString('id-ID')}</p>
+            <p className="text-gray-700 text-sm">Rp{(certificate.treeId?.price || 0).toLocaleString('id-ID')}</p>
           </div>
         </div>
 

@@ -61,7 +61,7 @@
 
 @layer utilities {
   .forest-bg {
-    background-image: url('https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=2000&q=80');
+    background-image: url(https://raw.githubusercontent.com/RiskaHaqikaSitumorang/UAS_PPL_TreeAdopt/main/background.png);
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
